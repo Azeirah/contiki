@@ -29,9 +29,8 @@
  * This file is part of the Contiki operating system.
  *
  */
-
 /**
- * \addtogroup native_platform
+ * \addtogroup esb
  * @{
  */
 
@@ -47,8 +46,8 @@
  *
  */
 
-#ifndef BEEP_H_
-#define BEEP_H_
+#ifndef __BEEP_H__
+#define __BEEP_H__
 
 #define BEEP_ALARM1 1
 #define BEEP_ALARM2 2
@@ -160,4 +159,4 @@ void beep_quick(int num);
 /** @} */
 /** @} */
 
-#endif /* BEEP_H_ */
+#endif /* __BEEP_H__ */

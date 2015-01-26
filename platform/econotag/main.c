@@ -34,12 +34,12 @@
 
 /* debug */
 #define DEBUG DEBUG_FULL
-#include "net/ip/uip-debug.h"
+#include "net/uip-debug.h"
 
 /* contiki */
 #include "contiki.h"
 #include "dev/button-sensor.h"
-#include "net/linkaddr.h"
+#include "net/rime/rimeaddr.h"
 #include "net/netstack.h"
 
 /* mc1322x */
@@ -50,9 +50,7 @@
 /* econotag */
 #include "platform_prints.h"
 
-#ifndef OWN_SENSORS_DEFINITION
-SENSORS(&button_sensor, &button_sensor2);
-#endif
+SENSORS(&button_sensor);
 
 #ifndef M12_CONF_SERIAL
 #define M12_SERIAL 0x000000
@@ -124,8 +122,8 @@ int main(void) {
 	/* configure address on maca hardware and RIME */
 	contiki_maca_set_mac_address(mc1322x_config.eui);
 
-#if NETSTACK_CONF_WITH_IPV6
-	memcpy(&uip_lladdr.addr, &linkaddr_node_addr.u8, sizeof(uip_lladdr.addr));
+#if WITH_UIP6
+	memcpy(&uip_lladdr.addr, &rimeaddr_node_addr.u8, sizeof(uip_lladdr.addr));
 	queuebuf_init();
 	NETSTACK_RDC.init();
 	NETSTACK_MAC.init();
@@ -137,7 +135,7 @@ int main(void) {
   #if DEBUG_ANNOTATE
 	print_lladdrs();
   #endif
-#endif /* endif NETSTACK_CONF_WITH_IPV6 */
+#endif /* endif WITH_UIP6 */
 
 	process_start(&sensors_process, NULL);
 

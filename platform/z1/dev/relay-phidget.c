@@ -43,7 +43,8 @@
 
 static uint8_t controlPin;
 
-enum PHIDGET_RELAY_STATUSTYPES {
+enum PHIDGET_RELAY_STATUSTYPES
+{
   /* must be a bit and not more, not using 0x00. */
   INITED = 0x01,
   RUNNING = 0x02,
@@ -58,48 +59,49 @@ void
 relay_enable(uint8_t pin)
 {
 
-  if(!(_RELAY_STATUS & INITED)) {
+  if (!(_RELAY_STATUS & INITED)){
 
     _RELAY_STATUS |= INITED;
 
-    /* Selects the pin to be configure as the control pin of the relay module */
+    // Selects the pin to be configure as the control pin of the relay module
     controlPin = (1 << pin);
 
-    /* Configures the control pin */
+    // Configures the control pin
     P6SEL &= ~controlPin;
     P6DIR |= controlPin;
   }
 }
+
 /*---------------------------------------------------------------------------*/
 
 void
 relay_on()
 {
-  if((_RELAY_STATUS & INITED)) {
+  if ((_RELAY_STATUS & INITED)){
     P6OUT |= controlPin;
   }
 }
+
 /*---------------------------------------------------------------------------*/
 void
 relay_off()
 {
-  if((_RELAY_STATUS & INITED)) {
+  if ((_RELAY_STATUS & INITED)){
     P6OUT &= ~controlPin;
   }
 }
+
 /*---------------------------------------------------------------------------*/
 
-int8_t
+uint8_t
 relay_toggle()
 {
-  if((_RELAY_STATUS & INITED)) {
+  uint8_t status;
+  if ((_RELAY_STATUS & INITED)){
     P6OUT ^= controlPin;
-    if((P6OUT & controlPin)) {
-      return 1;
-    }
+    if((P6OUT & controlPin)) return 1;
     return 0;
   }
-  return -1;
 }
 /*---------------------------------------------------------------------------*/
 

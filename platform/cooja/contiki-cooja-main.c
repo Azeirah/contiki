@@ -49,10 +49,9 @@
 #include "lib/random.h"
 #include "lib/simEnvChange.h"
 
-#include "net/rime/rime.h"
+#include "net/rime.h"
 #include "net/netstack.h"
 
-#include "dev/eeprom.h"
 #include "dev/serial-line.h"
 #include "dev/cooja-radio.h"
 #include "dev/button-sensor.h"
@@ -68,23 +67,23 @@
 #endif /* CLASSNAME */
 #define COOJA__QUOTEME(a,b,c) COOJA_QUOTEME(a,b,c)
 #define COOJA_QUOTEME(a,b,c) a##b##c
-#define COOJA_JNI_PATH Java_org_contikios_cooja_corecomm_
-#define Java_org_contikios_cooja_corecomm_CLASSNAME_init COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_init)
-#define Java_org_contikios_cooja_corecomm_CLASSNAME_getMemory COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_getMemory)
-#define Java_org_contikios_cooja_corecomm_CLASSNAME_setMemory COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_setMemory)
-#define Java_org_contikios_cooja_corecomm_CLASSNAME_tick COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_tick)
-#define Java_org_contikios_cooja_corecomm_CLASSNAME_setReferenceAddress COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_setReferenceAddress)
+#define COOJA_JNI_PATH Java_se_sics_cooja_corecomm_
+#define Java_se_sics_cooja_corecomm_CLASSNAME_init COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_init)
+#define Java_se_sics_cooja_corecomm_CLASSNAME_getMemory COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_getMemory)
+#define Java_se_sics_cooja_corecomm_CLASSNAME_setMemory COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_setMemory)
+#define Java_se_sics_cooja_corecomm_CLASSNAME_tick COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_tick)
+#define Java_se_sics_cooja_corecomm_CLASSNAME_setReferenceAddress COOJA__QUOTEME(COOJA_JNI_PATH,CLASSNAME,_setReferenceAddress)
 
-#ifndef NETSTACK_CONF_WITH_IPV4
-#define NETSTACK_CONF_WITH_IPV4 0
+#ifndef WITH_UIP
+#define WITH_UIP 0
 #endif
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 #include "dev/rs232.h"
 #include "dev/slip.h"
-#include "net/ip/uip.h"
-#include "net/ipv4/uip-fw.h"
+#include "net/uip.h"
+#include "net/uip-fw.h"
 #include "net/uip-fw-drv.h"
-#include "net/ipv4/uip-over-mesh.h"
+#include "net/uip-over-mesh.h"
 static struct uip_fw_netif slipif =
   {UIP_FW_NETIF(0,0,0,0, 255,255,255,255, slip_send)};
 static struct uip_fw_netif meshif =
@@ -92,16 +91,16 @@ static struct uip_fw_netif meshif =
 
 #define UIP_OVER_MESH_CHANNEL 8
 static uint8_t is_gateway;
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 
-#ifndef NETSTACK_CONF_WITH_IPV6
-#define NETSTACK_CONF_WITH_IPV6 0
+#ifndef WITH_UIP6
+#define WITH_UIP6 0
 #endif
-#if NETSTACK_CONF_WITH_IPV6
-#include "net/ip/uip.h"
-#include "net/ipv6/uip-ds6.h"
+#if WITH_UIP6
+#include "net/uip.h"
+#include "net/uip-ds6.h"
 #define PRINT6ADDR(addr) printf("%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7], ((uint8_t *)addr)[8], ((uint8_t *)addr)[9], ((uint8_t *)addr)[10], ((uint8_t *)addr)[11], ((uint8_t *)addr)[12], ((uint8_t *)addr)[13], ((uint8_t *)addr)[14], ((uint8_t *)addr)[15])
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 /* Simulation mote interfaces */
 SIM_INTERFACE_NAME(moteid_interface);
@@ -115,8 +114,7 @@ SIM_INTERFACE_NAME(pir_interface);
 SIM_INTERFACE_NAME(clock_interface);
 SIM_INTERFACE_NAME(leds_interface);
 SIM_INTERFACE_NAME(cfs_interface);
-SIM_INTERFACE_NAME(eeprom_interface);
-SIM_INTERFACES(&vib_interface, &moteid_interface, &rs232_interface, &simlog_interface, &beep_interface, &radio_interface, &button_interface, &pir_interface, &clock_interface, &leds_interface, &cfs_interface, &eeprom_interface);
+SIM_INTERFACES(&vib_interface, &moteid_interface, &rs232_interface, &simlog_interface, &beep_interface, &radio_interface, &button_interface, &pir_interface, &clock_interface, &leds_interface, &cfs_interface);
 /* Example: manually add mote interfaces */
 //SIM_INTERFACE_NAME(dummy_interface);
 //SIM_INTERFACES(..., &dummy_interface);
@@ -139,21 +137,21 @@ static struct cooja_mt_thread process_run_thread;
 #define MIN(a, b)   ( (a)<(b) ? (a) : (b) )
 
 /*---------------------------------------------------------------------------*/
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 static void
 set_gateway(void)
 {
   if(!is_gateway) {
     printf("%d.%d: making myself the IP network gateway.\n\n",
-       linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1]);
+       rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1]);
     printf("IPv4 address of the gateway: %d.%d.%d.%d\n\n",
        uip_ipaddr_to_quad(&uip_hostaddr));
-    uip_over_mesh_set_gateway(&linkaddr_node_addr);
+    uip_over_mesh_set_gateway(&rimeaddr_node_addr);
     uip_over_mesh_make_announced_gateway();
     is_gateway = 1;
   }
 }
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 /*---------------------------------------------------------------------------*/
 static void
 print_processes(struct process * const processes[])
@@ -182,20 +180,20 @@ rtimer_thread_loop(void *data)
 static void
 set_rime_addr(void)
 {
-  linkaddr_t addr;
+  rimeaddr_t addr;
   int i;
 
-  memset(&addr, 0, sizeof(linkaddr_t));
-#if NETSTACK_CONF_WITH_IPV6
+  memset(&addr, 0, sizeof(rimeaddr_t));
+#if WITH_UIP6
   for(i = 0; i < sizeof(uip_lladdr.addr); i += 2) {
     addr.u8[i + 1] = node_id & 0xff;
     addr.u8[i + 0] = node_id >> 8;
   }
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
   addr.u8[0] = node_id & 0xff;
   addr.u8[1] = node_id >> 8;
-#endif /* NETSTACK_CONF_WITH_IPV6 */
-  linkaddr_set_node_addr(&addr);
+#endif /* WITH_UIP6 */
+  rimeaddr_set_node_addr(&addr);
   printf("Rime started with address ");
   for(i = 0; i < sizeof(addr.u8) - 1; i++) {
     printf("%d.", addr.u8[i]);
@@ -229,9 +227,12 @@ contiki_init()
   set_rime_addr();
   {
     uint8_t longaddr[8];
+    uint16_t shortaddr;
     
+    shortaddr = (rimeaddr_node_addr.u8[0] << 8) +
+      rimeaddr_node_addr.u8[1];
     memset(longaddr, 0, sizeof(longaddr));
-    linkaddr_copy((linkaddr_t *)&longaddr, &linkaddr_node_addr);
+    rimeaddr_copy((rimeaddr_t *)&longaddr, &rimeaddr_node_addr);
     printf("MAC %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x ",
            longaddr[0], longaddr[1], longaddr[2], longaddr[3],
            longaddr[4], longaddr[5], longaddr[6], longaddr[7]);
@@ -246,7 +247,7 @@ contiki_init()
          CLOCK_SECOND / (NETSTACK_RDC.channel_check_interval() == 0 ? 1:
                          NETSTACK_RDC.channel_check_interval()));
 
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
   /* IPv4 CONFIGURATION */
   {
     uip_ipaddr_t hostaddr, netmask;
@@ -259,7 +260,7 @@ contiki_init()
 
     uip_init();
     uip_fw_init();
-    uip_ipaddr(&hostaddr, 172,16,linkaddr_node_addr.u8[0],linkaddr_node_addr.u8[1]);
+    uip_ipaddr(&hostaddr, 172,16,rimeaddr_node_addr.u8[0],rimeaddr_node_addr.u8[1]);
     uip_ipaddr(&netmask, 255,255,0,0);
     uip_ipaddr_copy(&meshif.ipaddr, &hostaddr);
 
@@ -273,9 +274,9 @@ contiki_init()
     rs232_set_input(slip_input_byte);
     printf("IPv4 address: %d.%d.%d.%d\n", uip_ipaddr_to_quad(&hostaddr));
   }
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 
-#if NETSTACK_CONF_WITH_IPV6
+#if WITH_UIP6
   /* IPv6 CONFIGURATION */
   {
     int i;
@@ -284,7 +285,7 @@ contiki_init()
       addr[i + 1] = node_id & 0xff;
       addr[i + 0] = node_id >> 8;
     }
-    linkaddr_copy((linkaddr_t *)addr, &linkaddr_node_addr);
+    rimeaddr_copy(addr, &rimeaddr_node_addr);
     memcpy(&uip_lladdr.addr, addr, sizeof(uip_lladdr.addr));
 
     process_start(&tcpip_process, NULL);
@@ -317,11 +318,8 @@ contiki_init()
              ipaddr.u8[7 * 2], ipaddr.u8[7 * 2 + 1]);
     }
   }
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
-  /* Initialize eeprom */
-  eeprom_init();
-  
   /* Start serial process */
   serial_line_init();
 
@@ -368,7 +366,7 @@ process_run_thread_loop(void *data)
  *             responsible Java part (MoteType.java).
  */
 JNIEXPORT void JNICALL
-Java_org_contikios_cooja_corecomm_CLASSNAME_init(JNIEnv *env, jobject obj)
+Java_se_sics_cooja_corecomm_CLASSNAME_init(JNIEnv *env, jobject obj)
 {
   /* Create rtimers and Contiki threads */
   cooja_mt_start(&rtimer_thread, &rtimer_thread_loop, NULL);
@@ -390,7 +388,7 @@ Java_org_contikios_cooja_corecomm_CLASSNAME_init(JNIEnv *env, jobject obj)
  *             responsible Java part (MoteType.java).
  */
 JNIEXPORT void JNICALL
-Java_org_contikios_cooja_corecomm_CLASSNAME_getMemory(JNIEnv *env, jobject obj, jint rel_addr, jint length, jbyteArray mem_arr)
+Java_se_sics_cooja_corecomm_CLASSNAME_getMemory(JNIEnv *env, jobject obj, jint rel_addr, jint length, jbyteArray mem_arr)
 {
   (*env)->SetByteArrayRegion(
       env,
@@ -415,7 +413,7 @@ Java_org_contikios_cooja_corecomm_CLASSNAME_getMemory(JNIEnv *env, jobject obj, 
  *             responsible Java part (MoteType.java).
  */
 JNIEXPORT void JNICALL
-Java_org_contikios_cooja_corecomm_CLASSNAME_setMemory(JNIEnv *env, jobject obj, jint rel_addr, jint length, jbyteArray mem_arr)
+Java_se_sics_cooja_corecomm_CLASSNAME_setMemory(JNIEnv *env, jobject obj, jint rel_addr, jint length, jbyteArray mem_arr)
 {
   jbyte *mem = (*env)->GetByteArrayElements(env, mem_arr, 0);
   memcpy(
@@ -443,7 +441,7 @@ Java_org_contikios_cooja_corecomm_CLASSNAME_setMemory(JNIEnv *env, jobject obj, 
  *             responsible Java part (MoteType.java).
  */
 JNIEXPORT void JNICALL
-Java_org_contikios_cooja_corecomm_CLASSNAME_tick(JNIEnv *env, jobject obj)
+Java_se_sics_cooja_corecomm_CLASSNAME_tick(JNIEnv *env, jobject obj)
 {
   clock_time_t nextEtimer;
   rtimer_clock_t nextRtimer;
@@ -497,7 +495,7 @@ Java_org_contikios_cooja_corecomm_CLASSNAME_tick(JNIEnv *env, jobject obj)
  *             responsible Java part (MoteType.java).
  */
 JNIEXPORT void JNICALL
-Java_org_contikios_cooja_corecomm_CLASSNAME_setReferenceAddress(JNIEnv *env, jobject obj, jint addr)
+Java_se_sics_cooja_corecomm_CLASSNAME_setReferenceAddress(JNIEnv *env, jobject obj, jint addr)
 {
   referenceVar = (((long)&referenceVar) - ((long)addr));
 }

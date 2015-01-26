@@ -39,8 +39,8 @@
  *         Simon Barner <barner@in.tum.de>
  */
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 /* Platform name, type, and MCU clock rate */
 #define PLATFORM_NAME  "Zigbit"
@@ -95,11 +95,11 @@ void clock_adjust_ticks(clock_time_t howmany);
 #define CC_CONF_INLINE inline
 #endif
 
-#define LINKADDR_CONF_SIZE       8
+#define RIMEADDR_CONF_SIZE       8
 #define PACKETBUF_CONF_HDR_SIZE    0
 
-//define NETSTACK_CONF_WITH_IPV6            1 //Let the makefile do this, allows hello-world to compile
-#if NETSTACK_CONF_WITH_IPV6
+//define UIP_CONF_IPV6            1 //Let the makefile do this, allows hello-world to compile
+#if UIP_CONF_IPV6
 #define UIP_CONF_ICMP6           1
 #define UIP_CONF_UDP             1
 #define UIP_CONF_TCP             1
@@ -113,7 +113,7 @@ void clock_adjust_ticks(clock_time_t howmany);
 #define UIP_CONF_LLH_LEN         0
 
 /* No radio cycling */
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 #define NETSTACK_CONF_NETWORK     sicslowpan_driver
 #else
 #define NETSTACK_CONF_NETWORK     rime_driver
@@ -179,4 +179,4 @@ typedef unsigned short uip_stats_t;
 typedef unsigned long off_t;
 
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */

@@ -16,7 +16,6 @@ ifeq ($(HTTPD-CFS),1)
 endif
 
 CONTIKI = ../..
-CONTIKI_WITH_IPV4 = 1
 include $(CONTIKI)/Makefile.include
 
 # Intentionally httpd.c and httpd-cfs.c implement the same interface. When

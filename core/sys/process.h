@@ -50,8 +50,8 @@
  * Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef PROCESS_H_
-#define PROCESS_H_
+#ifndef __PROCESS_H__
+#define __PROCESS_H__
 
 #include "sys/pt.h"
 #include "sys/cc.h"
@@ -339,7 +339,7 @@ struct process {
  * process
  *
  */
-CCIF void process_start(struct process *p, process_data_t data);
+CCIF void process_start(struct process *p, const char *arg);
 
 /**
  * Post an asynchronous event.
@@ -362,7 +362,7 @@ CCIF void process_start(struct process *p, process_data_t data);
  * \retval PROCESS_ERR_FULL The event queue was full and the event could
  * not be posted.
  */
-CCIF int process_post(struct process *p, process_event_t ev, process_data_t data);
+CCIF int process_post(struct process *p, process_event_t ev, void* data);
 
 /**
  * Post a synchronous event to a process.
@@ -375,7 +375,7 @@ CCIF int process_post(struct process *p, process_event_t ev, process_data_t data
  * with the event.
  */
 CCIF void process_post_synch(struct process *p,
-			     process_event_t ev, process_data_t data);
+			     process_event_t ev, void* data);
 
 /**
  * \brief      Cause a process to exit
@@ -525,7 +525,7 @@ CCIF extern struct process *process_list;
 
 #define PROCESS_LIST() process_list
 
-#endif /* PROCESS_H_ */
+#endif /* __PROCESS_H__ */
 
 /** @} */
 /** @} */

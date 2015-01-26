@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 #include <inttypes.h>
 #ifndef WIN32_LEAN_AND_MEAN
@@ -79,9 +79,9 @@ typedef unsigned short uip_stats_t;
 #define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE 8
 #endif /* NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE */
 
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 
-#define LINKADDR_CONF_SIZE              8
+#define RIMEADDR_CONF_SIZE              8
 
 #ifndef NETSTACK_CONF_MAC
 #define NETSTACK_CONF_MAC     nullmac_driver
@@ -102,6 +102,9 @@ typedef unsigned short uip_stats_t;
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 
 #define UIP_CONF_ROUTER                 1
+#ifndef UIP_CONF_IPV6_RPL
+#define UIP_CONF_IPV6_RPL               1
+#endif /* UIP_CONF_IPV6_RPL */
 
 #define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
 #define SICSLOWPAN_CONF_COMPRESSION_HC1         1
@@ -162,7 +165,7 @@ typedef unsigned short uip_stats_t;
 
 
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* UIP_CONF_IPV6 */
 
 #include <ctype.h>
 #define ctk_arch_isprint isprint
@@ -278,4 +281,4 @@ int strcasecmp(const char*, const char*);
 #include PROJECT_CONF_H
 #endif /* PROJECT_CONF_H */
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */

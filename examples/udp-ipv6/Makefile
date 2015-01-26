@@ -1,5 +1,6 @@
 all: udp-server udp-client
 
+UIP_CONF_IPV6=1
+
 CONTIKI = ../..
-CONTIKI_WITH_IPV6 = 1
 include $(CONTIKI)/Makefile.include

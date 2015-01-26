@@ -1,3 +1,7 @@
+/**
+ * \addtogroup uip6
+ * @{
+ */
 /*
  * Copyright (c) 2010, Swedish Institute of Computer Science.
  * All rights reserved.
@@ -28,7 +32,6 @@
  *
  * This file is part of the Contiki operating system.
  */
-
 /**
  * \file
  *         RPL timer management.
@@ -36,19 +39,15 @@
  * \author Joakim Eriksson <joakime@sics.se>, Nicolas Tsiftes <nvt@sics.se>
  */
 
-/**
- * \addtogroup uip6
- * @{
- */
-
 #include "contiki-conf.h"
 #include "net/rpl/rpl-private.h"
-#include "net/ipv6/multicast/uip-mcast6.h"
 #include "lib/random.h"
 #include "sys/ctimer.h"
 
+#if UIP_CONF_IPV6
+
 #define DEBUG DEBUG_NONE
-#include "net/ip/uip-debug.h"
+#include "net/uip-debug.h"
 
 /*---------------------------------------------------------------------------*/
 static struct ctimer periodic_timer;
@@ -70,7 +69,7 @@ handle_periodic_timer(void *ptr)
   rpl_recalculate_ranks();
 
   /* handle DIS */
-#if RPL_DIS_SEND
+#ifdef RPL_DIS_SEND
   next_dis++;
   if(rpl_get_any_dag() == NULL && next_dis >= RPL_DIS_INTERVAL) {
     next_dis = 0;
@@ -145,7 +144,7 @@ handle_dio_timer(void *ptr)
 
   if(instance->dio_send) {
     /* send DIO if counter is less than desired redundancy */
-    if(instance->dio_redundancy != 0 && instance->dio_counter < instance->dio_redundancy) {
+    if(instance->dio_counter < instance->dio_redundancy) {
 #if RPL_CONF_STATS
       instance->dio_totsend++;
 #endif /* RPL_CONF_STATS */
@@ -195,36 +194,10 @@ rpl_reset_dio_timer(rpl_instance_t *instance)
 #endif /* RPL_LEAF_ONLY */
 }
 /*---------------------------------------------------------------------------*/
-static void handle_dao_timer(void *ptr);
-static void
-set_dao_lifetime_timer(rpl_instance_t *instance)
-{
-  if(rpl_get_mode() == RPL_MODE_FEATHER) {
-    return;
-  }
-
-  /* Set up another DAO within half the expiration time, if such a
-     time has been configured */
-  if(instance->lifetime_unit != 0xffff && instance->default_lifetime != 0xff) {
-    clock_time_t expiration_time;
-    expiration_time = (clock_time_t)instance->default_lifetime *
-      (clock_time_t)instance->lifetime_unit *
-      CLOCK_SECOND / 2;
-    PRINTF("RPL: Scheduling DAO lifetime timer %u ticks in the future\n",
-           (unsigned)expiration_time);
-    ctimer_set(&instance->dao_lifetime_timer, expiration_time,
-               handle_dao_timer, instance);
-  }
-}
-/*---------------------------------------------------------------------------*/
 static void
 handle_dao_timer(void *ptr)
 {
   rpl_instance_t *instance;
-#if RPL_CONF_MULTICAST
-  uip_mcast6_route_t *mcast_route;
-  uint8_t i;
-#endif
 
   instance = (rpl_instance_t *)ptr;
 
@@ -239,89 +212,29 @@ handle_dao_timer(void *ptr)
     PRINTF("RPL: handle_dao_timer - sending DAO\n");
     /* Set the route lifetime to the default value. */
     dao_output(instance->current_dag->preferred_parent, instance->default_lifetime);
-
-#if RPL_CONF_MULTICAST
-    /* Send DAOs for multicast prefixes only if the instance is in MOP 3 */
-    if(instance->mop == RPL_MOP_STORING_MULTICAST) {
-      /* Send a DAO for own multicast addresses */
-      for(i = 0; i < UIP_DS6_MADDR_NB; i++) {
-        if(uip_ds6_if.maddr_list[i].isused
-            && uip_is_addr_mcast_global(&uip_ds6_if.maddr_list[i].ipaddr)) {
-          dao_output_target(instance->current_dag->preferred_parent,
-              &uip_ds6_if.maddr_list[i].ipaddr, RPL_MCAST_LIFETIME);
-        }
-      }
-
-      /* Iterate over multicast routes and send DAOs */
-      mcast_route = uip_mcast6_route_list_head();
-      while(mcast_route != NULL) {
-        /* Don't send if it's also our own address, done that already */
-        if(uip_ds6_maddr_lookup(&mcast_route->group) == NULL) {
-          dao_output_target(instance->current_dag->preferred_parent,
-                     &mcast_route->group, RPL_MCAST_LIFETIME);
-        }
-        mcast_route = list_item_next(mcast_route);
-      }
-    }
-#endif
   } else {
     PRINTF("RPL: No suitable DAO parent\n");
   }
-
   ctimer_stop(&instance->dao_timer);
-
-  if(etimer_expired(&instance->dao_lifetime_timer.etimer)) {
-    set_dao_lifetime_timer(instance);
-  }
 }
 /*---------------------------------------------------------------------------*/
-static void
-schedule_dao(rpl_instance_t *instance, clock_time_t latency)
+void
+rpl_schedule_dao(rpl_instance_t *instance)
 {
   clock_time_t expiration_time;
-
-  if(rpl_get_mode() == RPL_MODE_FEATHER) {
-    return;
-  }
 
   expiration_time = etimer_expiration_time(&instance->dao_timer.etimer);
 
   if(!etimer_expired(&instance->dao_timer.etimer)) {
     PRINTF("RPL: DAO timer already scheduled\n");
   } else {
-    if(latency != 0) {
-      expiration_time = latency / 2 +
-        (random_rand() % (latency));
-    } else {
-      expiration_time = 0;
-    }
+    expiration_time = RPL_DAO_LATENCY / 2 +
+      (random_rand() % (RPL_DAO_LATENCY));
     PRINTF("RPL: Scheduling DAO timer %u ticks in the future\n",
            (unsigned)expiration_time);
     ctimer_set(&instance->dao_timer, expiration_time,
                handle_dao_timer, instance);
-
-    set_dao_lifetime_timer(instance);
   }
 }
 /*---------------------------------------------------------------------------*/
-void
-rpl_schedule_dao(rpl_instance_t *instance)
-{
-  schedule_dao(instance, RPL_DAO_LATENCY);
-}
-/*---------------------------------------------------------------------------*/
-void
-rpl_schedule_dao_immediately(rpl_instance_t *instance)
-{
-  schedule_dao(instance, 0);
-}
-/*---------------------------------------------------------------------------*/
-void
-rpl_cancel_dao(rpl_instance_t *instance)
-{
-  ctimer_stop(&instance->dao_timer);
-  ctimer_stop(&instance->dao_lifetime_timer);
-}
-/*---------------------------------------------------------------------------*/
-
-/** @}*/
+#endif /* UIP_CONF_IPV6 */

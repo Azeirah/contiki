@@ -35,10 +35,6 @@
  */
 
 /**
- * \addtogroup SeedEye 
- * @{ */
-
-/**
  * \defgroup mrf24j40 MRF24J40 Driver
  *
  * @{
@@ -51,8 +47,8 @@
  * \date   2012-03-21
  */
 
-#ifndef MRF24J40_H_
-#define MRF24J40_H_
+#ifndef __MRF24J40_H__
+#define __MRF24J40_H__
 
 #include <pic32_irq.h>
 #include <pic32_spi.h>
@@ -227,7 +223,6 @@ typedef union _INT_status {
   } bits;
 } INT_status;
 
-#endif /* MRF24J40_H_ */
+#endif /* __MRF24J40_H__ */
 
-/** @} */
 /** @} */

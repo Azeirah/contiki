@@ -46,7 +46,7 @@
  */
 #include "contiki.h"
 #include "sys/process.h"
-#include "net/linkaddr.h"
+#include "net/rime/rimeaddr.h"
 #include "usb-api.h"
 #include "usb.h"
 #include "usb-arch.h"

@@ -37,13 +37,14 @@
  *
  */
 
-#ifndef RELAY_PHIDGET_H_
-#define RELAY_PHIDGETS_H_
+#ifndef __RELAY_PHIDGET_H__
+#define __RELAY_PHIDGETS_H__
 
 void relay_enable(uint8_t pin);
 
 void relay_on();
 void relay_off();
-int8_t relay_toogle();
+uint8_t relay_toogle();
 
-#endif /* RELAY_PHIDGET_H_ */
+
+#endif /* __RELAY_PHIDGET_H__ */

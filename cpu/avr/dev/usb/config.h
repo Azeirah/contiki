@@ -49,11 +49,11 @@
   POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
 /**
-   @addtogroup usbstick
+   @addtogroup usb
    @{
 */
 
@@ -109,5 +109,5 @@
 
 /** @}  */
 
-#endif //CONFIG_H_
+#endif // _CONFIG_H_
 

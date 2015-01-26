@@ -39,8 +39,8 @@
  *         Simon Barner <barner@in.tum.de
  */
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 #include <stdint.h>
 
@@ -92,9 +92,9 @@ void clock_adjust_ticks(clock_time_t howmany);
 #define CCIF
 #define CLIF
 
-//#define NETSTACK_CONF_WITH_IPV6            1  //Let makefile determine this so ipv4 hello-world will compile
+//#define UIP_CONF_IPV6            1  //Let makefile determine this so ipv4 hello-world will compile
 
-#define LINKADDR_CONF_SIZE       8
+#define RIMEADDR_CONF_SIZE       8
 #define PACKETBUF_CONF_HDR_SIZE    0
 
 /* 0 for IPv6, or 1 for HC1, 2 for HC01 */
@@ -124,7 +124,7 @@ void clock_adjust_ticks(clock_time_t howmany);
 #define UIP_CONF_NETIF_MAX_ADDRESSES  3
 #define UIP_CONF_ND6_MAX_PREFIXES     3
 #define UIP_CONF_ND6_MAX_DEFROUTERS   2
-#if NETSTACK_CONF_WITH_IPV6                       //tcpip.c error on ipv4 build if UIP_CONF_ICMP6 defined
+#if UIP_CONF_IPV6                       //tcpip.c error on ipv4 build if UIP_CONF_ICMP6 defined
 #define UIP_CONF_ICMP6           1
 #endif
 
@@ -144,4 +144,4 @@ typedef unsigned long u32_t;
 typedef unsigned short uip_stats_t;
 typedef unsigned long off_t;
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */

@@ -1,3 +1,19 @@
+/**
+ * \addtogroup ctk
+ * @{
+ */
+
+/**
+ * \file
+ * CTK screen drawing module interface, ctk-draw.
+ * \author Adam Dunkels <adam@dunkels.com>
+ *
+ * This file contains the interface for the ctk-draw module.The
+ * ctk-draw module takes care of the actual screen drawing for CTK by
+ * implementing a handful of functions that are called by CTK.
+ *
+ */
+
 /*
  * Copyright (c) 2002-2003, Adam Dunkels.
  * All rights reserved. 
@@ -32,24 +48,8 @@
  *
  */
 
-/**
- * \addtogroup ctk
- * @{
- */
-
-/**
- * \file
- * CTK screen drawing module interface, ctk-draw.
- * \author Adam Dunkels <adam@dunkels.com>
- *
- * This file contains the interface for the ctk-draw module.The
- * ctk-draw module takes care of the actual screen drawing for CTK by
- * implementing a handful of functions that are called by CTK.
- *
- */
-
-#ifndef CTK_DRAW_H_
-#define CTK_DRAW_H_
+#ifndef __CTK_DRAW_H__
+#define __CTK_DRAW_H__
 
 #include "ctk/ctk.h"
 #include "contiki-conf.h"
@@ -281,7 +281,7 @@ extern unsigned char ctk_draw_windowborder_width,
   ctk_draw_windowtitle_height;
 
 
-#endif /* CTK_DRAW_H_ */
+#endif /* __CTK_DRAW_H__ */
 
 
 /**

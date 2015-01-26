@@ -49,7 +49,7 @@ slip_arch_writeb(unsigned char c)
  *
  */
 /*---------------------------------------------------------------------------*/
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 int
 putchar(int c)
 {
@@ -75,7 +75,7 @@ putchar(int c)
 
   return c;
 }
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif
 /*---------------------------------------------------------------------------*/
 /**
  * Initalize the RS232 port and the SLIP driver.

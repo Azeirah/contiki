@@ -34,7 +34,6 @@ AS       = $(CROSS)as
 AR       = $(CROSS)ar
 NM       = $(CROSS)nm
 OBJCOPY  = $(CROSS)objcopy
-OBJDUMP  = $(CROSS)objdump
 STRIP    = $(CROSS)strip
 
 PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
@@ -82,32 +81,26 @@ else
 endif
 
 $(OBJECTDIR)/%.lds: $(CONTIKI_CPU)/%.lds.S | $(OBJECTDIR)
-	$(TRACE_CC)
-	$(Q)$(CPP) $(CPPFLAGS) $< > $@
+	$(CPP) $(CPPFLAGS) $< > $@
 
 $(OBJECTDIR)/isr.o: $(CONTIKI_CPU)/src/isr.c | $(OBJECTDIR)
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) $(ARM_FLAGS) $< -c -o $@
+	$(CC) $(CFLAGS) $(ARM_FLAGS) $< -c -o $@
 
 %.o: %.c
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) $(THUMB_FLAGS) $< -c
+	$(CC) $(CFLAGS) $(THUMB_FLAGS) $< -c
 
 $(OBJECTDIR)/%.o: %.c | $(OBJECTDIR)
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) $(THUMB_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(THUMB_FLAGS) -c $< -o $@
 
 CUSTOM_RULE_S_TO_OBJECTDIR_O = yes
 
 $(OBJECTDIR)/%.o: %.S | $(OBJECTDIR)
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) $(AFLAGS) $(ARM_FLAGS) $< -c  -o $@
+	$(CC) $(CFLAGS) $(AFLAGS) $(ARM_FLAGS) $< -c  -o $@
 
 CUSTOM_RULE_C_TO_CO=yes
 
 %.co: %.c
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -DAUTOSTART_ENABLE $(THUMB_FLAGS) $< -c -o $@
+	$(CC) $(CFLAGS) -DAUTOSTART_ENABLE $(THUMB_FLAGS) $< -c -o $@
 
 .PRECIOUS: %.bin %_$(TARGET).bin
 
@@ -121,9 +114,6 @@ CUSTOM_RULE_C_TO_CO=yes
 	@
 
 %.elf: $(OBJECTDIR)/board.h  %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a $(STARTUP) $(OBJECTDIR)/mc1322x.lds
-	$(TRACE_CC)
-	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a %.lds,$^) $(filter %.a,$^) $(filter %.a,$^)
+	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a %.lds,$^) $(filter %.a,$^) $(filter %.a,$^)
 
-%.lst: %.elf
-	$(OBJDUMP) -DS $< > $@
 

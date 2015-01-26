@@ -31,13 +31,14 @@
 #include "contiki-lib.h"
 #include "contiki-net.h"
 
+#include "sleep.h"
 #include "board-sensors.h"
 #include "board.h"
 
 #include <string.h>
 
 #define DEBUG DEBUG_PRINT
-#include "net/ip/uip-debug.h"
+#include "net/uip-debug.h"
 
 #define SEND_INTERVAL		25 * CLOCK_SECOND
 

@@ -41,25 +41,11 @@
 
 #define MAX_TICKS (~((clock_time_t)0) / 2)
 
-#define CLOCK_LT(a, b) ((int16_t)((a)-(b)) < 0)
-
 static volatile unsigned long seconds;
 
 static volatile clock_time_t count = 0;
 /* last_tar is used for calculating clock_fine */
 static volatile uint16_t last_tar = 0;
-/*---------------------------------------------------------------------------*/
-static inline uint16_t
-read_tar(void)
-{
-  /* Same as clock_counter(), but can be inlined */
-  uint16_t t1, t2;
-  do {
-    t1 = TAR;
-    t2 = TAR;
-  } while(t1 != t2);
-  return t1;
-}
 /*---------------------------------------------------------------------------*/
 ISR(TIMERA1, timera1)
 {
@@ -71,11 +57,10 @@ ISR(TIMERA1, timera1)
 
     /* HW timer bug fix: Interrupt handler called before TR==CCR.
      * Occurs when timer state is toggled between STOP and CONT. */
-    while(TACTL & MC1 && TACCR1 - read_tar() == 1);
+    while(TACTL & MC1 && TACCR1 - TAR == 1);
 
-    last_tar = read_tar();
     /* Make sure interrupt time is future */
-    while(!CLOCK_LT(last_tar, TACCR1)) {
+    do {
       TACCR1 += INTERVAL;
       ++count;
 
@@ -91,8 +76,9 @@ ISR(TIMERA1, timera1)
 	++seconds;
         energest_flush();
       }
-      last_tar = read_tar();
-    }
+    } while((TACCR1 - TAR) > INTERVAL);
+
+    last_tar = TAR;
 
     if(etimer_pending() &&
        (etimer_next_expiration_time() - count - 1) > MAX_TICKS) {

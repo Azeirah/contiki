@@ -48,8 +48,8 @@
 
 
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 #ifdef PLATFORM_CONF_H
 #include PLATFORM_CONF_H
@@ -63,7 +63,7 @@
 /* 802.15.4 PAN ID */
 #define IEEE802154_CONF_PANID					0x1234
 /* Use EID 64, enable hardware autoack and address filtering */
-#define LINKADDR_CONF_SIZE					8
+#define RIMEADDR_CONF_SIZE					8
 #define UIP_CONF_LL_802154					1
 #define ST_CONF_RADIO_AUTOACK					1
 /* Number of buffers for incoming frames */
@@ -87,7 +87,7 @@
 //#define NETSTACK_CONF_MAC					csma_driver
 //#define NETSTACK_CONF_RDC					contikimac_driver
 #define NETSTACK_CONF_MAC					nullmac_driver
-#define NETSTACK_CONF_RDC					nullrdc_driver
+#define NETSTACK_CONF_RDC					sicslowmac_driver
 #define NETSTACK_CONF_FRAMER					framer_802154
 #define NETSTACK_CONF_RADIO					stm32w_radio_driver
 
@@ -115,7 +115,7 @@
 #define RPL_CONF_MAX_DAG_PER_INSTANCE				1
 #define PROCESS_CONF_NUMEVENTS					16
 
-#if NETSTACK_CONF_WITH_IPV6
+#if WITH_UIP6
 
 /* Network setup for IPv6 */
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
@@ -125,6 +125,7 @@
    larger than a specified size, if no ContikiMAC header should be
    used. */
 #define SICSLOWPAN_CONF_COMPRESSION_THRESHOLD			63
+#define CONTIKIMAC_CONF_WITH_CONTIKIMAC_HEADER			0
 
 #define UIP_CONF_UDP                				1
 
@@ -135,9 +136,10 @@
 #endif /* WITH_COAP */
 
 #define UIP_CONF_ROUTER						1
+#define UIP_CONF_IPV6_RPL					1
 #define UIP_CONF_ND6_SEND_RA					0
 
-#define NETSTACK_CONF_WITH_IPV6						1
+#define UIP_CONF_IPV6						1
 #define UIP_CONF_IPV6_QUEUE_PKT					0
 #define UIP_CONF_IPV6_CHECKS					1
 #define UIP_CONF_IPV6_REASSEMBLY				0
@@ -160,16 +162,16 @@
 #define SICSLOWPAN_CONF_MAXAGE					2
 #endif /* SICSLOWPAN_CONF_MAXAGE */
 
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 
 /* Network setup for non-IPv6 (rime). */
 #define NETSTACK_CONF_NETWORK					rime_driver
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #ifdef PROJECT_CONF_H
 #include PROJECT_CONF_H
 #endif /* PROJECT_CONF_H */
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */
 /** @} */

@@ -35,7 +35,7 @@
 #include "contiki-net.h"
 #include "ctk/ctk.h"
 #include "cfs/cfs.h"
-#include "net/ip/dhcpc.h"
+#include "net/dhcpc.h"
 
 static struct ctk_window window;
 
@@ -196,8 +196,6 @@ PROCESS_THREAD(ipconfig_process, ev, data)
   CTK_WIDGET_ADD(&window, &cancelbutton);
 
   CTK_WIDGET_FOCUS(&window, &requestbutton);  
-
-  makestrings();
 
   ctk_window_open(&window);
 

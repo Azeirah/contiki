@@ -39,8 +39,8 @@
  *         Kasun Hewage <kasun.ch@gmail.com>
  */
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 #define HAVE_STDINT_H
 #include "avrdef.h"
@@ -48,10 +48,10 @@
 #include "platform-conf.h"
 
 
-#if NETSTACK_CONF_WITH_IPV6
-#define NETSTACK_CONF_WITH_IPV6 1
+#if UIP_CONF_IPV6
+#define WITH_UIP6 1
 #endif
-#if NETSTACK_CONF_WITH_IPV6
+#if WITH_UIP6
 /* Network setup for IPv6 */
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 //#define NETSTACK_CONF_MAC     csma_driver
@@ -65,7 +65,7 @@
 #define RIME_CONF_NO_POLITE_ANNOUCEMENTS 0
 #define CXMAC_CONF_ANNOUNCEMENTS         0
 
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 
 /* Network setup for non-IPv6 (rime). */
 
@@ -86,21 +86,13 @@
 
 #define COLLECT_NBR_TABLE_CONF_MAX_NEIGHBORS      32
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define PACKETBUF_CONF_ATTRS_INLINE 1
 
-#ifdef RF_CHANNEL
-#define CC2420_CONF_CHANNEL RF_CHANNEL
-#endif
-
-#ifndef CC2420_CONF_CHANNEL
-#define CC2420_CONF_CHANNEL              26
-#endif /* CC2420_CONF_CHANNEL */
-
-#ifndef CC2420_CONF_CCA_THRESH
-#define CC2420_CONF_CCA_THRESH              -45
-#endif /* CC2420_CONF_CCA_THRESH */
+#ifndef RF_CHANNEL
+#define RF_CHANNEL              26
+#endif /* RF_CHANNEL */
 
 #define CONTIKIMAC_CONF_BROADCAST_RATE_LIMIT 0
 
@@ -115,26 +107,28 @@
 #define PROCESS_CONF_NUMEVENTS 8
 #define PROCESS_CONF_STATS 1
 
-#ifdef NETSTACK_CONF_WITH_IPV6
+#ifdef WITH_UIP6
 
-#define LINKADDR_CONF_SIZE              8
+#define RIMEADDR_CONF_SIZE              8
 
 #define UIP_CONF_LL_802154              1
 #define UIP_CONF_LLH_LEN                0
 
 #define UIP_CONF_ROUTER                 0
+#define UIP_CONF_IPV6_RPL               1
 
 /* configure number of neighbors and routes */
 #define NBR_TABLE_CONF_MAX_NEIGHBORS     5
 #define UIP_CONF_MAX_ROUTES   5
 
 #define RPL_CONF_MAX_PARENTS         4
+#define NBR_TABLE_CONF_MAX_NEIGHBORS  8
 
 #define UIP_CONF_ND6_SEND_RA		0
 #define UIP_CONF_ND6_REACHABLE_TIME     600000
 #define UIP_CONF_ND6_RETRANS_TIMER      10000
 
-#define NETSTACK_CONF_WITH_IPV6                   1
+#define UIP_CONF_IPV6                   1
 #define UIP_CONF_IPV6_QUEUE_PKT         0
 #define UIP_CONF_IPV6_CHECKS            1
 #define UIP_CONF_IPV6_REASSEMBLY        0
@@ -154,17 +148,17 @@
 #endif /* SICSLOWPAN_CONF_FRAG */
 #define SICSLOWPAN_CONF_CONVENTIONAL_MAC	1
 #define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS       2
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 #define UIP_CONF_IP_FORWARD      1
 #define UIP_CONF_BUFFER_SIZE     128
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define UIP_CONF_ICMP_DEST_UNREACH 1
 
-#if !NETSTACK_CONF_WITH_IPV4 && !NETSTACK_CONF_WITH_IPV6
+#if !WITH_UIP && !WITH_UIP6
 #define QUEUEBUF_CONF_NUM          8
 #else
-#define QUEUEBUF_CONF_NUM          2
+#define QUEUEBUF_CONF_NUM          4
 #endif
 
 #define TIMESYNCH_CONF_ENABLED 1
@@ -201,4 +195,4 @@
 typedef unsigned short uip_stats_t;
 typedef unsigned long off_t;
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */

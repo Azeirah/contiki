@@ -7,6 +7,8 @@ DEFINES+=MODEL_N601,PROJECT_CONF_H
 
 # We need uIPv6, therefore we also need banking
 HAVE_BANKING=1
+UIP_CONF_IPV6=1
+UIP_CONF_RPL=1
 
 PROJECT_SOURCEFILES += slip-bridge.c
 
@@ -15,5 +17,4 @@ all: $(CONTIKI_PROJECT)
 
 CONTIKI = ../../..
 
-CONTIKI_WITH_IPV6 = 1
 include $(CONTIKI)/Makefile.include

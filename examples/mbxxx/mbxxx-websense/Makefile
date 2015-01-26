@@ -2,6 +2,9 @@ all: mbxxx-websense
 
 CONTIKI=../../..
 
+WITH_UIP6=1
+UIP_CONF_IPV6=1
+
 APPS += webserver webbrowser
 
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
@@ -9,7 +12,6 @@ CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 PROJECTDIRS += ../../ipv6/rpl-border-router
 PROJECT_SOURCEFILES += httpd-simple.c
 
-CONTIKI_WITH_IPV6 = 1
 include $(CONTIKI)/Makefile.include
 
 $(CONTIKI)/tools/tunslip6:     $(CONTIKI)/tools/tunslip6.c

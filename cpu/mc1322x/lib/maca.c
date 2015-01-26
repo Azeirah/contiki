@@ -300,7 +300,7 @@ void bound_check(volatile packet_t *p) {
 /* public packet routines */
 /* heads are to the right */
 /* ends are to the left */
-void maca_free_packet(volatile packet_t *p) {
+void free_packet(volatile packet_t *p) {
 	safe_irq_disable(MACA);
 
 	BOUND_CHECK(p);
@@ -495,7 +495,7 @@ void free_all_packets(void) {
 
 	free_head = 0;
 	for(i=0; i<NUM_PACKETS; i++) {
-		maca_free_packet((volatile packet_t *)&(packet_pool[i]));		
+		free_packet((volatile packet_t *)&(packet_pool[i]));		
 	}
 	rx_head = 0; rx_end = 0;
 	tx_head = 0; tx_end = 0;
@@ -517,7 +517,7 @@ void free_tx_head(void) {
 	p = tx_head;
 	tx_head = tx_head->left;
 	if(tx_head == 0) { tx_end = 0; }
-	maca_free_packet(p);
+	free_packet(p);
 	
 //	print_packets("free tx head");
 	irq_restore();

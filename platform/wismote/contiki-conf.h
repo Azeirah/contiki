@@ -33,7 +33,7 @@
 
 #define NULLRDC_CONF_802154_AUTOACK      1
 
-#if NETSTACK_CONF_WITH_IPV6
+#if WITH_UIP6
 /* Network setup for IPv6 */
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 
@@ -42,6 +42,7 @@
    larger than a specified size, if no ContikiMAC header should be
    used. */
 #define SICSLOWPAN_CONF_COMPRESSION_THRESHOLD 63
+#define CONTIKIMAC_CONF_WITH_CONTIKIMAC_HEADER 0
 
 #define CXMAC_CONF_ANNOUNCEMENTS         0
 #define XMAC_CONF_ANNOUNCEMENTS          0
@@ -50,7 +51,7 @@
 #define QUEUEBUF_CONF_NUM                8
 #endif
 
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 
 /* Network setup for non-IPv6 (rime). */
 
@@ -83,7 +84,7 @@
 #define CC2520_CONF_SFD_TIMESTAMPS       1
 #endif /* TIMESYNCH_CONF_ENABLED */
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define PACKETBUF_CONF_ATTRS_INLINE 1
 
@@ -119,14 +120,17 @@
 #define PROCESS_CONF_STATS 1
 /*#define PROCESS_CONF_FASTPOLL    4*/
 
-#ifdef NETSTACK_CONF_WITH_IPV6
+#ifdef WITH_UIP6
 
-#define LINKADDR_CONF_SIZE              8
+#define RIMEADDR_CONF_SIZE              8
 
 #define UIP_CONF_LL_802154              1
 #define UIP_CONF_LLH_LEN                0
 
 #define UIP_CONF_ROUTER                 1
+#ifndef UIP_CONF_IPV6_RPL
+#define UIP_CONF_IPV6_RPL               1
+#endif /* UIP_CONF_IPV6_RPL */
 
 /* configure number of neighbors and routes */
 #ifndef NBR_TABLE_CONF_MAX_NEIGHBORS
@@ -140,7 +144,7 @@
 #define UIP_CONF_ND6_REACHABLE_TIME     600000
 #define UIP_CONF_ND6_RETRANS_TIMER      10000
 
-#define NETSTACK_CONF_WITH_IPV6                   1
+#define UIP_CONF_IPV6                   1
 #ifndef UIP_CONF_IPV6_QUEUE_PKT
 #define UIP_CONF_IPV6_QUEUE_PKT         0
 #endif /* UIP_CONF_IPV6_QUEUE_PKT */
@@ -167,10 +171,10 @@
 #ifndef SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS
 #define SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS   5
 #endif /* SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS */
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 #define UIP_CONF_IP_FORWARD      1
 #define UIP_CONF_BUFFER_SIZE     108
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define UIP_CONF_ICMP_DEST_UNREACH 1
 

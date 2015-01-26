@@ -36,13 +36,13 @@
 
 #define IMPLEMENT_PRINTF 1
 
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 /* uIP packets via SLIP */
 #include "uip.h"
 #define MAX_LOG_LENGTH (2*UIP_BUFSIZE)
-#else /* NETSTACK_CONF_WITH_IPV4 */
+#else /* WITH_UIP */
 #define MAX_LOG_LENGTH 1024
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 
 #if MAX_LOG_LENGTH < 1024
 #undef MAX_LOG_LENGTH

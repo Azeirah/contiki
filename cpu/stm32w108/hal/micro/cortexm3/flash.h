@@ -4,13 +4,8 @@
  * <!--(C) COPYRIGHT 2010 STMicroelectronics. All rights reserved.        -->
  */
  
-/**
- * \addtogroup stm32w-cpu
- * @{
- */
-
-/** 
- * @defgroup flash Definition and description of public flash manipulation routines.
+/** @addtogroup flash
+ * @brief Definition and description of public flash manipulation routines.
  *
  * @note
  * During an erase or a write the flash is not available,
@@ -24,8 +19,8 @@
  *@{
  */
 
-#ifndef FLASH_H_
-#define FLASH_H_
+#ifndef __FLASH_H__
+#define __FLASH_H__
 
 #include "memmap.h"
 
@@ -125,8 +120,7 @@ StStatus halInternalCibOptionByteWrite(uint8_t byte, uint8_t data);
 
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 
-#endif //FLASH_H_
+#endif //__FLASH_H__
 
 /** @} END addtogroup */
-/** @} */
 

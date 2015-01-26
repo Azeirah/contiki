@@ -7,7 +7,7 @@
  *  (http://www.cnit.it).
  *
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -35,7 +35,7 @@
  */
 
 /**
- * \file  platform/seedeye/contiki-conf.h
+ * \file  contiki-conf.h
  * \brief Contiki configuration file for the SEEDEYE port.
  * \author Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>
  * \date   2012-03-21
@@ -69,29 +69,34 @@ typedef uint32_t rtimer_clock_t;
 #define ENERGEST_CONF_ON 1
 #endif /* ENERGEST_CONF_ON */
 
-#ifdef NETSTACK_CONF_WITH_IPV6
+#ifdef WITH_UIP6
 #define NETSTACK_CONF_NETWORK                   sicslowpan_driver
 #define NETSTACK_CONF_FRAMER                    framer_802154
 #define NETSTACK_CONF_MAC                       nullmac_driver
 #define NETSTACK_CONF_RDC                       nullrdc_driver
 #define NETSTACK_CONF_RADIO                     mrf24j40_driver
-#define LINKADDR_CONF_SIZE                      8
+#define RIMEADDR_CONF_SIZE                      8
 #else
 #define NETSTACK_CONF_NETWORK                   rime_driver
 #define NETSTACK_CONF_FRAMER                    framer_802154
 #define NETSTACK_CONF_MAC                       nullmac_driver
 #define NETSTACK_CONF_RDC                       nullrdc_driver
 #define NETSTACK_CONF_RADIO                     mrf24j40_driver
-#define LINKADDR_CONF_SIZE                      2
+#define RIMEADDR_CONF_SIZE                      2
 #endif
 
 #define RDC_CONF_HARDWARE_CSMA                  1
 
-#ifdef NETSTACK_CONF_WITH_IPV6
+#define CONTIKIMAC_CONF_WITH_CONTIKIMAC_HEADER  0
+
+#ifdef WITH_UIP6
 #define UIP_CONF_ROUTER                         1
+#ifndef UIP_CONF_IPV6_RPL
+#define UIP_CONF_IPV6_RPL                       1
+#endif /* UIP_CONF_IPV6_RPL */
 
 /* IPv6 configuration options */
-#define NETSTACK_CONF_WITH_IPV6                           1
+#define UIP_CONF_IPV6                           1
 #define NBR_TABLE_CONF_MAX_NEIGHBORS                    20 /* number of neighbors */
 #define UIP_CONF_DS6_ROUTE_NBU                  20 /* number of routes */
 #define UIP_CONF_ND6_SEND_RA                    0

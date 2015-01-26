@@ -45,8 +45,8 @@
  *         Mariano Alvira <mar@devl.org>
  */
 
-#ifndef CONTIKI_CONF_H_
-#define CONTIKI_CONF_H_
+#ifndef __CONTIKI_CONF_H__
+#define __CONTIKI_CONF_H__
 
 #include <stdint.h>
 
@@ -106,9 +106,9 @@
 #define PLATFORM_HAS_LEDS 1
 #define PLATFORM_HAS_BUTTON 1
 
-#define LINKADDR_CONF_SIZE              8
+#define RIMEADDR_CONF_SIZE              8
 
-#if NETSTACK_CONF_WITH_IPV6
+#if WITH_UIP6
 /* Network setup for IPv6 */
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 #define NETSTACK_CONF_MAC     nullmac_driver 
@@ -121,12 +121,12 @@
 #define CXMAC_CONF_ANNOUNCEMENTS         0
 #define XMAC_CONF_ANNOUNCEMENTS          0
 
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 /* Network setup for non-IPv6 (rime). */
 
 #define NETSTACK_CONF_NETWORK rime_driver
 #define NETSTACK_CONF_MAC     csma_driver
-#define NETSTACK_CONF_RDC     nullrdc_driver
+#define NETSTACK_CONF_RDC     sicslowmac_driver
 #define NETSTACK_CONF_RADIO   contiki_maca_driver
 #define NETSTACK_CONF_FRAMER  framer_802154
 
@@ -144,7 +144,7 @@
 
 #define COLLECT_NBR_TABLE_CONF_MAX_NEIGHBORS      32
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define QUEUEBUF_CONF_NUM          16
 
@@ -169,15 +169,19 @@
 #define PROCESS_CONF_NUMEVENTS 8
 #define PROCESS_CONF_STATS 1
 
-#ifdef NETSTACK_CONF_WITH_IPV6
+#ifdef WITH_UIP6
 
-#define LINKADDR_CONF_SIZE              8
+#define RIMEADDR_CONF_SIZE              8
 
 #define UIP_CONF_LL_802154              1
 #define UIP_CONF_LLH_LEN                0
 
 #ifndef UIP_CONF_ROUTER
 #define UIP_CONF_ROUTER                 1  
+#endif
+
+#ifndef UIP_CONF_IPV6_RPL
+#define UIP_CONF_IPV6_RPL               1
 #endif
 
 #define NBR_TABLE_CONF_MAX_NEIGHBORS     30
@@ -187,7 +191,7 @@
 #define UIP_CONF_ND6_REACHABLE_TIME     600000
 #define UIP_CONF_ND6_RETRANS_TIMER      10000
 
-#define NETSTACK_CONF_WITH_IPV6                   1
+#define UIP_CONF_IPV6                   1
 #define UIP_CONF_IPV6_QUEUE_PKT         0
 #define UIP_CONF_IPV6_CHECKS            1
 #define UIP_CONF_IPV6_REASSEMBLY        0
@@ -209,10 +213,10 @@
 #endif /* SICSLOWPAN_CONF_FRAG */
 #define SICSLOWPAN_CONF_CONVENTIONAL_MAC	1
 #define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS       2
-#else /* NETSTACK_CONF_WITH_IPV6 */
+#else /* WITH_UIP6 */
 #define UIP_CONF_IP_FORWARD      1
 #define UIP_CONF_BUFFER_SIZE     1300
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* WITH_UIP6 */
 
 #define UIP_CONF_ICMP_DEST_UNREACH 1
 
@@ -239,4 +243,4 @@
 #include PROJECT_CONF_H
 #endif /* PROJECT_CONF_H */
 
-#endif /* CONTIKI_CONF_H_ */
+#endif /* __CONTIKI_CONF_H__ */

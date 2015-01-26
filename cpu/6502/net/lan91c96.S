@@ -33,8 +33,7 @@
 ;
 ;---------------------------------------------------------------------
 
-	.macpack	module
-	module_header	_lan91c96
+	.segment	"JUMPTABLE"
 
 	; Driver signature
 	.byte	$65, $74, $68	; "eth"
@@ -49,29 +48,19 @@ bufaddr:.res	2		; Address
 bufsize:.res	2		; Size
 
 	; Jump table.
-	jmp init
-	jmp poll
-	jmp send
-	jmp exit
+	.addr	init
+	.addr	poll
+	.addr	send
+	.addr	exit
 
 ;---------------------------------------------------------------------
 
-	.if DYN_DRV
-
 	.zeropage
-sp:	.res	2		; Stack pointer (Do not trash !)
+
+sp:	.res   	2		; Stack pointer (Do not trash !)
 reg:	.res	2		; Address of register base
 ptr:	.res	2		; Indirect addressing pointer
 len:	.res	2		; Frame length
-
-	.else
-
-	.include "zeropage.inc"
-reg	:=	ptr1		; Address of register base
-ptr	:=	ptr2		; Indirect addressing pointer
-len	:=	ptr3		; Frame length
-
-	.endif
 
 ;---------------------------------------------------------------------
 
@@ -89,7 +78,7 @@ fixup:	.byte	fixup02-fixup01, fixup03-fixup02, fixup04-fixup03
 	.byte	fixup29-fixup28, fixup30-fixup29, fixup31-fixup30
 	.byte	fixup32-fixup31, fixup33-fixup32, fixup34-fixup33
 	.byte	fixup35-fixup34, fixup36-fixup35, fixup37-fixup36
-	.byte	fixup38-fixup37, fixup39-fixup38, fixup40-fixup39
+	.byte	fixup38-fixup37
 
 fixups	= * - fixup
 
@@ -168,24 +157,16 @@ init:
 	inc ptr+1
 	bcs :-			; Always
 
-	; Check bank select register upper byte to always read as $33
-:	ldy #$00
-fixup01:sty ethbsr+1
-fixup02:lda ethbsr+1
-	cmp #$33
-	beq :+
-	sec
-	rts
-
 	; Reset ETH card
-:				; Bank 0
-fixup03:sty ethbsr
+:	lda #$00		; Bank 0
+fixup01:sta ethbsr
 
 	lda #%10000000		; Software reset
-fixup04:sta ethrcr+1
+fixup02:sta ethrcr+1
 
-fixup05:sty ethrcr
-fixup06:sty ethrcr+1
+	ldy #$00
+fixup03:sty ethrcr
+fixup04:sty ethrcr+1
 
 	; Delay
 :	cmp ($FF,x)		; 6 cycles
@@ -197,55 +178,57 @@ fixup06:sty ethrcr+1
 	; Enable transmit and receive
 	lda #%10000001		; Enable transmit TXENA, PAD_EN
 	ldx #%00000011		; Enable receive, strip CRC ???
-fixup07:sta ethtcr
-fixup08:stx ethrcr+1
+fixup05:sta ethtcr
+fixup06:stx ethrcr+1
 
 	lda #$01		; Bank 1
-fixup09:sta ethbsr
+fixup07:sta ethbsr
 
-fixup10:lda ethcr+1
+fixup08:lda ethcr+1
 	ora #%00010000		; No wait (IOCHRDY)
-fixup11:sta ethcr+1
+fixup09:sta ethcr+1
 
 	lda #%00001001		; Auto release
-fixup12:sta ethctr+1
+fixup10:sta ethctr+1
 
 	; Set MAC address
 	ldy #$00
 :	lda mac,y
-fixup13:sta ethiar,y
+fixup11:sta ethiar,y
 	iny
 	cpy #$06
 	bcc :-
 
 	; Set interrupt mask
 	lda #$02		; Bank 2
-fixup14:sta ethbsr
+fixup12:sta ethbsr
 
 	lda #%00000000		; No interrupts
-fixup15:sta ethmsk
-	tax
-	clc
+fixup13:sta ethmsk
 	rts
 
 ;---------------------------------------------------------------------
 
 poll:
-fixup16:lda ethist
+fixup14:lda ethist
 	and #%00000001		; RCV INT
-	beq :+
+	bne :+
+
+	; No packet available
+	tax
+	rts
 
 	; Process the incoming packet
 	; ---------------------------
 	
-	lda #$00
+:	lda #$00
 	ldx #%11100000		; RCV, AUTO INCR., READ
-fixup17:sta ethptr
-fixup18:stx ethptr+1
+fixup15:sta ethptr
+fixup16:stx ethptr+1
 
 	; Last word contains 'last data byte' and $60 or 'fill byte' and $40
-fixup19:lda ethdata		; Status word
-fixup20:lda ethdata		; Need high byte only
+fixup17:lda ethdata		; Status word
+fixup18:lda ethdata		; Need high byte only
 
 	; Move ODDFRM bit into carry:
 	; - Even packet length -> carry clear -> subtract 6 bytes
@@ -257,10 +240,10 @@ fixup20:lda ethdata		; Need high byte only
 	lsr
 
 	; The packet contains 3 extra words
-fixup21:lda ethdata		; Total number of bytes
+fixup19:lda ethdata		; Total number of bytes
 	sbc #$05		; Actually 5 or 6 depending on carry
 	sta len
-fixup22:lda ethdata
+fixup20:lda ethdata
 	sbc #$00
 	sta len+1
 
@@ -269,23 +252,22 @@ fixup22:lda ethdata
 	cmp len
 	lda bufsize+1
 	sbc len+1
-	bcs :++
+	bcs :+
 
 	; Yes, skip packet
 	; Remove and release RX packet from the FIFO
 	lda #%10000000
-fixup23:sta ethmmucr
+fixup21:sta ethmmucr
 
 	; No packet available
 	lda #$00
-:	tax
-	sec
+	tax
 	rts
 
 	; Read bytes into buffer
 :	jsr adjustptr
 :
-fixup24:lda ethdata
+fixup22:lda ethdata
 	sta (ptr),y
 	iny
 	bne :-
@@ -295,12 +277,11 @@ fixup24:lda ethdata
 
 	; Remove and release RX packet from the FIFO
 	lda #%10000000
-fixup25:sta ethmmucr
+fixup23:sta ethmmucr
 
 	; Return packet length
 	lda len
 	ldx len+1
-	clc
 	rts
 
 ;---------------------------------------------------------------------
@@ -313,14 +294,14 @@ send:
 	; Allocate memory for TX
 	txa
 	ora #%00100000
-fixup26:sta ethmmucr
+fixup24:sta ethmmucr
 
 	; 8 retries
 	ldy #$08
 
 	; Wait for allocation ready
 :
-fixup27:lda ethist
+fixup25:lda ethist
 	and #%00001000		; ALLOC INT
 	bne :+
 
@@ -330,26 +311,25 @@ fixup27:lda ethist
 	; And try again
 	dey
 	bne :-
-	sec
 	rts
 
 	; Acknowledge interrupt, is it necessary ???
 :	lda #%00001000
-fixup28:sta ethack
+fixup26:sta ethack
 
 	; Set packet address
-fixup29:lda etharr
-fixup30:sta ethpnr
+fixup27:lda etharr
+fixup28:sta ethpnr
 
 	lda #$00
 	ldx #%01000000		; AUTO INCR.
-fixup31:sta ethptr
-fixup32:stx ethptr+1
+fixup29:sta ethptr
+fixup30:stx ethptr+1
 
 	; Status written by CSMA
 	lda #$00
-fixup33:sta ethdata
-fixup34:sta ethdata
+fixup31:sta ethdata
+fixup32:sta ethdata
 
 	; Check packet length parity:
 	; - Even packet length -> carry set   -> add 6 bytes
@@ -361,10 +341,10 @@ fixup34:sta ethdata
 	; The packet contains 3 extra words
 	lda len
 	adc #$05		; Actually 5 or 6 depending on carry
-fixup35:sta ethdata
+fixup33:sta ethdata
 	lda len+1
 	adc #$00
-fixup36:sta ethdata
+fixup34:sta ethdata
 
 	; Send the packet
 	; ---------------
@@ -372,7 +352,7 @@ fixup36:sta ethdata
 	; Write bytes from buffer
 	jsr adjustptr
 :	lda (ptr),y
-fixup37:sta ethdata
+fixup35:sta ethdata
 	iny
 	bne :-
 	inc ptr+1
@@ -390,14 +370,13 @@ fixup37:sta ethdata
 
 	; No
 :	lda #$00
-fixup38:sta ethdata		; Fill byte
+fixup36:sta ethdata		; Fill byte
 :	
-fixup39:sta ethdata		; Control byte
+fixup37:sta ethdata		; Control byte
 
 	; Add packet to FIFO
 	lda #%11000000		; ENQUEUE PACKET - transmit packet
-fixup40:sta ethmmucr
-	clc
+fixup38:sta ethmmucr
 	rts
 
 ;---------------------------------------------------------------------

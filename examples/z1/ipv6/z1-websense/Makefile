@@ -2,6 +2,9 @@ all: z1-websense
 
 CONTIKI=../../../..
 
+WITH_UIP6=1
+UIP_CONF_IPV6=1
+
 SMALL=1
 
 APPS += webserver webbrowser
@@ -11,7 +14,6 @@ CONTIKI_SOURCEFILES += wget.c
 PROJECTDIRS += ../../../ipv6/rpl-border-router
 PROJECT_SOURCEFILES += httpd-simple.c
 
-CONTIKI_WITH_IPV6 = 1
 include $(CONTIKI)/Makefile.include
 
 $(CONTIKI)/tools/tunslip6:	$(CONTIKI)/tools/tunslip6.c

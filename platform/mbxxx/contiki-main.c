@@ -68,13 +68,14 @@
 
 #include "dev/stm32w-radio.h"
 #include "net/netstack.h"
-#include "net/linkaddr.h"
-#include "net/rime/rime.h"
-#include "net/ip/uip.h"
+#include "net/rime/rimeaddr.h"
+#include "net/rime.h"
+#include "net/rime/rime-udp.h"
+#include "net/uip.h"
 
-#if NETSTACK_CONF_WITH_IPV6
-#include "net/ipv6/uip-ds6.h"
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#if WITH_UIP6
+#include "net/uip-ds6.h"
+#endif /* WITH_UIP6 */
 
 #define DEBUG 1
 #if DEBUG
@@ -89,7 +90,7 @@
 #endif
 
 
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 PROCINIT(&tcpip_process, &sensors_process);
 #else
 PROCINIT(&sensors_process);
@@ -121,21 +122,21 @@ set_rime_addr(void)
     }
   }
 
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
   memcpy(&uip_lladdr.addr, &eui64, sizeof(uip_lladdr.addr));
 #endif
 
-#if NETSTACK_CONF_WITH_IPV6
-  linkaddr_set_node_addr((linkaddr_t *)&eui64);
+#if UIP_CONF_IPV6
+  rimeaddr_set_node_addr((rimeaddr_t *)&eui64);
 #else
-  linkaddr_set_node_addr((linkaddr_t *)&eui64.u8[8 - LINKADDR_SIZE]);
+  rimeaddr_set_node_addr((rimeaddr_t *)&eui64.u8[8 - RIMEADDR_SIZE]);
 #endif
 
   printf("Rime started with address ");
-  for(i = 0; i < sizeof(linkaddr_t) - 1; i++) {
-    printf("%d.", linkaddr_node_addr.u8[i]);
+  for(i = 0; i < sizeof(rimeaddr_t) - 1; i++) {
+    printf("%d.", rimeaddr_node_addr.u8[i]);
   }
-  printf("%d\n", linkaddr_node_addr.u8[i]);
+  printf("%d\n", rimeaddr_node_addr.u8[i]);
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -189,7 +190,7 @@ main(void)
                                   NETSTACK_RDC.channel_check_interval()));
   printf("802.15.4 PAN ID 0x%x, EUI-%d:",
       IEEE802154_CONF_PANID, UIP_CONF_LL_802154?64:16);
-  uip_debug_lladdr_print(&linkaddr_node_addr);
+  uip_debug_lladdr_print(&rimeaddr_node_addr);
   printf(", radio channel %u\n", RF_CHANNEL);
 
   procinit_init();
@@ -207,7 +208,7 @@ main(void)
   ST_RadioSetEdCcaThreshold(DEFAULT_RADIO_CCA_THRESHOLD);
   
   autostart_start(autostart_processes);
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
   printf("Tentative link-local IPv6 address ");
   {
     uip_ds6_addr_t *lladdr;
@@ -235,7 +236,7 @@ main(void)
     printf("%02x%02x\n",
            ipaddr.u8[7 * 2], ipaddr.u8[7 * 2 + 1]);
   }
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* UIP_CONF_IPV6 */
   
   watchdog_start();
   

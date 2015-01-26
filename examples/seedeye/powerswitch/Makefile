@@ -7,7 +7,14 @@ all: remotepowerswitch
 CONTIKI=../../../
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 
+# variable for root Makefile.include
+WITH_UIP6=1
+# for some platforms
+UIP_CONF_IPV6=1
+
 WITH_COAP=13
+
+UIP_CONF_RPL=1
 
 # REST framework, requires WITH_COAP
 ifeq ($(WITH_COAP), 13)
@@ -44,5 +51,4 @@ endif
 
 APPS   += erbium
 
-CONTIKI_WITH_IPV6 = 1
 include $(CONTIKI)/Makefile.include

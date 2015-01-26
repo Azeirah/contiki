@@ -2,7 +2,7 @@
 
 /* debug */
 #define DEBUG DEBUG_FULL
-#include "net/ip/uip-debug.h"
+#include "net/uip-debug.h"
 
 /* contiki */
 #include "sys/process.h"

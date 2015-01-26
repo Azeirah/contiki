@@ -46,7 +46,7 @@
 
 #include "contiki-net.h"
 
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 
 #define DEBUG 1
 #if DEBUG
@@ -136,5 +136,5 @@ void set_net_address(void)
 #endif /* FIXED_GLOBAL_ADDRESS */
 
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* UIP_CONF_IPV6 */
 /** @} */

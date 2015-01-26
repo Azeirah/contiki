@@ -33,10 +33,10 @@
  *
  */
 
-#include "net/ip/uip.h"
-#include "net/ip/uipopt.h"
+#include "net/uip.h"
+#include "net/uipopt.h"
 
-#if !NETSTACK_CONF_WITH_IPV6
+#if !UIP_CONF_IPV6
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -204,4 +204,4 @@ tapdev_exit(void)
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /* !NETSTACK_CONF_WITH_IPV6 */
+#endif /* !UIP_CONF_IPV6 */

@@ -30,15 +30,23 @@
  *
  */
 
+/** \addtogroup esb
+ * @{ */
+
+/**
+ * \defgroup esbrs232 ESB RS232
+ *
+ * @{
+ */
 
 /**
  * \file
- * Header file for COOJA RS232 driver.
+ * Header file for MSP430 RS232 driver.
  * \author Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef RS232_H_
-#define RS232_H_
+#ifndef __RS232_H__
+#define __RS232_H__
 
 
 #define RS232_19200 1
@@ -104,5 +112,6 @@ void rs232_print(char *text);
  */
 void rs232_send(char c);
 
-#endif /* RS232_H_ */
+#endif /* __RS232_H__ */
 
+/** @} */ /** @} */

@@ -36,8 +36,8 @@
  * \author
  *         George Oikonomou - <oikonomou@users.sourceforge.net>
  */
-#ifndef CC2530_RF_H_
-#define CC2530_RF_H_
+#ifndef __CC2530_RF_H__
+#define __CC2530_RF_H__
 
 #include "contiki.h"
 #include "dev/radio.h"
@@ -120,6 +120,9 @@
 /*---------------------------------------------------------------------------*/
 extern const struct radio_driver cc2530_rf_driver;
 /*---------------------------------------------------------------------------*/
+int8_t cc2530_rf_channel_set(uint8_t channel);
+#define cc2530_rf_channel_get() ((uint8_t)((FREQCTRL + 44) / 5))
+uint8_t cc2530_rf_power_set(uint8_t new_power);
 void cc2530_rf_set_addr(uint16_t pan);
 /*---------------------------------------------------------------------------*/
-#endif /* CC2530_RF_H_ */
+#endif /* __CC2530_RF_H__ */

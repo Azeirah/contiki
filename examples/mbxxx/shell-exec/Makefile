@@ -11,7 +11,6 @@ APPS = serial-shell
 PROJECT_SOURCEFILES = shell-exec.c
 CONTIKI = ../../..
 
-CONTIKI_WITH_RIME = 1
 include $(CONTIKI)/Makefile.include
 
 %.shell-upload: %.ce

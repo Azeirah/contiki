@@ -31,37 +31,37 @@
 #include "dev/ip.h"
 #include "lib/simEnvChange.h"
 
-#include "net/ip/uip.h"
+#include "net/uip.h"
 
 const struct simInterface ip_interface;
 
 // COOJA variables
 
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 
 char simIPChanged;
 char simIP[16];
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* UIP_CONF_IPV6 */
 
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 
 char simIPChanged;
 char simIP[4];
 
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 
 /*-----------------------------------------------------------------------------------*/
 static void
 doInterfaceActionsBeforeTick(void)
 {
-#if NETSTACK_CONF_WITH_IPV6
+#if UIP_CONF_IPV6
 
   /* check if IPv6 address should change */
 
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+#endif /* UIP_CONF_IPV6 */
 
-#if NETSTACK_CONF_WITH_IPV4
+#if WITH_UIP
 
   /* check if IPv4 address should change */
 /*
@@ -73,7 +73,7 @@ doInterfaceActionsBeforeTick(void)
   }
 */
 
-#endif /* NETSTACK_CONF_WITH_IPV4 */
+#endif /* WITH_UIP */
 }
 /*-----------------------------------------------------------------------------------*/
 static void

@@ -44,7 +44,7 @@
 #include "radio/rf230bb/rf230bb.h"
 #include "net/mac/frame802154.h"
 #include "net/mac/framer-802154.h"
-#include "net/ipv6/sicslowpan.h"
+#include "net/sicslowpan.h"
 #else                 //radio driver using Atmel/Cisco 802.15.4'ish MAC
 #include <stdbool.h>
 #include "mac.h"
@@ -74,17 +74,9 @@ FUSES =
 PROCESS(rcb_leds, "RCB leds process");
 
 #if RF230BB
-#if NETSTACK_CONF_WITH_IPV6 || NETSTACK_CONF_WITH_IPV4
 PROCINIT(&etimer_process, &tcpip_process, &rcb_leds);
 #else
-PROCINIT(&etimer_process, &rcb_leds);
-#endif
-#else
-#if NETSTACK_CONF_WITH_IPV6 || NETSTACK_CONF_WITH_IPV4
 PROCINIT(&etimer_process, &mac_process, &tcpip_process, &rcb_leds);
-#else
-PROCINIT(&etimer_process, &mac_process, &rcb_leds);
-#endif
 #endif
 
 /* Put default MAC address in EEPROM */
@@ -123,7 +115,7 @@ PROCESS_THREAD(rcb_leds, ev, data)
     while(1) {
       PROCESS_YIELD();
       
-#if NETSTACK_CONF_WITH_IPV6	  
+#if UIP_CONF_IPV6	  
 	  if (ev == ICMP6_ECHO_REQUEST) {
 #else
  		if (1) {

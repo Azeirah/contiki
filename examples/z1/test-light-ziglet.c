@@ -42,13 +42,22 @@
 #include "dev/i2cmaster.h"
 #include "dev/light-ziglet.h"
 
+
 #if 1
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
 #define PRINTF(...)
 #endif
 
-#define SENSOR_READ_INTERVAL (CLOCK_SECOND / 2)
+
+#if 0
+#define PRINTFDEBUG(...) printf(__VA_ARGS__)
+#else
+#define PRINTFDEBUG(...)
+#endif
+
+
+#define SENSOR_READ_INTERVAL (CLOCK_SECOND)
 
 PROCESS(test_process, "Test light ziglet process");
 AUTOSTART_PROCESSES(&test_process);
@@ -61,10 +70,7 @@ PROCESS_THREAD(test_process, ev, data)
 
   uint16_t light;
 
-  /* Initialize driver and set a slower data rate */
-
   light_ziglet_init();
-  i2c_setrate(I2C_PRESC_100KHZ_LSB, I2C_PRESC_100KHZ_MSB);
 
   while(1) {
     etimer_set(&et, SENSOR_READ_INTERVAL);
